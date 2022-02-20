@@ -65,6 +65,7 @@
             newEl.setAttribute("size", 30);
 
             newEl.setAttribute("onsumbit", "return checkFile();");
+            newEl.addEventListener('change', handleFileSelect, false);
 
             parent.removeChild(el);
             parent.appendChild(newEl)
