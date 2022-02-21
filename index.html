@@ -322,21 +322,7 @@
         }
 
         function inversePattern(actions) {
-            var newActions = [];
-            for(var i = 0; i<actions.length; i++) {
-                var percent = Math.floor(i/actions.length * 100);
-                statusText('Inversing pattern ' + percent + '% ...');
-
-                var current = actions[i];
-                newActions.push(
-                            {
-                                "at": current.at,
-                                "pos": Math.max(0, (100 - current.pos))
-
-                            }
-                        );
-            }
-            return newActions;
+            return smooth(actions, function(a0,a1) {return Math.max(0, (100 - a0.pos))}, 'Inversing pattern: ', false);
         }
         function debug(message) {
                 console.log(message);
