@@ -33,9 +33,10 @@
         <p>Conversion:</p>
         <div><input id="intensity" type="radio" name="conversion" value="intensity" checked="true" /><label for="intensity" class='radio' tabindex='1'></label>
             <label for="intensity">Intensity</label></div>
-            <div><input id="smooth" type="radio" name="conversion" value="smooth" checked="false" /><label for="smooth" class='radio' tabindex='1'></label>
+            <div><input id="smooth" type="radio" name="conversion" value="smooth" /><label for="smooth" class='radio' tabindex='1'></label>
                 <label for="smooth">Smooth</label></div>
-    
+                <div><input id="inverse" type="radio" name="conversion" value="inverse" /><label for="inverse" class='radio' tabindex='1'></label>
+                    <label for="inverse">Inverse</label></div>
         <div><input id="dualchannel" type="radio" name="conversion" value="dualchannel"><label for="dualchannel" class='radio' tabindex='2'></label><label for="dualchannel">Dual Channel</label></div>
       
     </form>
@@ -108,6 +109,10 @@
                 document.getElementById('reset').disabled = false;
                } else if(mode == 'smooth') {
                 script = smoothPattern(funscript.actions); // desired file content
+                add('Download', "download('" + baseFilename + ".funscript', script)")
+                document.getElementById('reset').disabled = false;
+            } else if(mode == 'inverse') {
+                script = inversePattern(funscript.actions); // desired file content
                 add('Download', "download('" + baseFilename + ".funscript', script)")
                 document.getElementById('reset').disabled = false;
                }
@@ -316,6 +321,23 @@
             return newActions;
         }
 
+        function inversePattern(actions) {
+            var newActions = [];
+            for(var i = 0; i<actions.length; i++) {
+                var percent = Math.floor(i/actions.length * 100);
+                statusText('Inversing pattern ' + percent + '% ...');
+
+                var current = actions[i];
+                newActions.push(
+                            {
+                                "at": current.at,
+                                "pos": Math.max(0, (100 - current.pos))
+
+                            }
+                        );
+            }
+            return newActions;
+        }
         function debug(message) {
                 console.log(message);
         }
