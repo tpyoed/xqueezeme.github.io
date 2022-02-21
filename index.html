@@ -1,6 +1,12 @@
 <html>
 
-<title>conversion</title>
+<head>
+    <title>conversion</title>
+
+    <style>
+       
+      </style>
+</head>
 <body>
     <script>
         function checkFile() {
@@ -23,15 +29,21 @@
         <div><label for="pattern-generation-rate">pattern-generation-rate:</label></label><input id="pattern-generation-rate" type="text" value="100"></input></div>
         <div><label for="pattern-generation-tick-max-change">pattern-generation-tick-max-change:</label></label><input id="pattern-generation-tick-max-change" type="text" value="10"></input></div>
 
-        <div id="uploaddiv"><input id="upload" type=file   accept=".funscript" name="files[]" size=30 onchange="checkFile();" /></div>
+        <div id="uploaddiv"><input id="upload" type=file   accept=".funscript" name="files[]" size=200 onchange="checkFile();" /></div>
         <p>Conversion:</p>
-        <input type="radio" name="conversion" value="intensity" checked="true" />Intensity
-        <input type="radio" name="conversion" value="dualchannel">Dual Channel
+        <div><input id="intensity" type="radio" name="conversion" value="intensity" checked="true" /><label for="intensity" class='radio' tabindex='1'></label>
+            <label for="intensity">Intensity</label></div>
+            <div><input id="smooth" type="radio" name="conversion" value="smooth" checked="false" /><label for="smooth" class='radio' tabindex='1'></label>
+                <label for="smooth">Smooth</label></div>
+    
+        <div><input id="dualchannel" type="radio" name="conversion" value="dualchannel"><label for="dualchannel" class='radio' tabindex='2'></label><label for="dualchannel">Dual Channel</label></div>
       
     </form>
-    <button id="convert" value="Convert" onclick="convert();" disabled="true">Convert</button>    
-    <button id="reset" value="Reset" onclick="reset();" disabled="true">Reset</button>    
-
+    <div>
+        <button id="convert" value="Convert" onclick="convert();" disabled="true">Convert</button>    
+        <button id="reset" value="Reset" onclick="reset();" disabled="true">Reset</button>    
+    </div>
+    <br>
     <div id="downloads"></div>
      
         <script>
@@ -90,8 +102,12 @@
                 add('Download Channel A', "download('" + baseFilename + "-a.funscript', script.a)")
                 add('Download Channel B', "download('" + baseFilename + "-b.funscript', script.b)")
                 document.getElementById('reset').disabled = false;
-               } else {
+               } else if(mode == 'intensity') {
                 script = intensityPattern(funscript.actions); // desired file content
+                add('Download', "download('" + baseFilename + ".funscript', script)")
+                document.getElementById('reset').disabled = false;
+               } else if(mode == 'smooth') {
+                script = smoothPattern(funscript.actions); // desired file content
                 add('Download', "download('" + baseFilename + ".funscript', script)")
                 document.getElementById('reset').disabled = false;
                }
@@ -311,7 +327,9 @@
         function intensityPattern(actions) {
             return smooth(actions, intensityPosition, 'Intensifying pattern: ', true);
         }
-
+        function smoothPattern(actions) {
+            return smooth(actions, function(a0,a1) {return a0.pos;}, 'Smoothifying pattern: ', false);
+        }
           function handleFileSelect(evt) {
               document.getElementById('convert').disabled = false;
           }
