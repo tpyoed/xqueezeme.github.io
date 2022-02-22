@@ -26,18 +26,23 @@
     </script>
     <form enctype="multipart/form-data">
         
-        <div><label for="pattern-generation-rate">pattern-generation-rate:</label></label><input id="pattern-generation-rate" type="text" value="100"></input></div>
-        <div><label for="pattern-generation-tick-max-change">pattern-generation-tick-max-change:</label></label><input id="pattern-generation-tick-max-change" type="text" value="10"></input></div>
+        <div><label for="pattern-generation-rate">Pattern generation rate (ms): </label><input id="pattern-generation-rate" type="text" value="100"></input>
+        <div>Defines the interval (ms) between each tick</div>
+        </div>
+        <div><label for="pattern-generation-tick-max-change">Pattern max change per tick (%):</label><input id="pattern-generation-tick-max-change" type="text" value="10"></input>
+        <div>Defines maximum intensity change per tick, the lower this setting, the smoother, but some highs or lows might not be achieved</div>
+
+        </div>
 
         <div id="uploaddiv"><input id="upload" type=file   accept=".funscript" name="files[]" size=200 onchange="checkFile();" /></div>
         <p>Conversion:</p>
         <div><input id="intensity" type="radio" name="conversion" value="intensity" checked="true" /><label for="intensity" class='radio' tabindex='1'></label>
-            <label for="intensity">Intensity</label></div>
+            <label for="intensity">Intensity: Ideal for vibes and hismith. Calculates the intensity based on the speed and positional changes of the funscript.</label></div>
             <div><input id="smooth" type="radio" name="conversion" value="smooth" /><label for="smooth" class='radio' tabindex='1'></label>
-                <label for="smooth">Smooth</label></div>
+                <label for="smooth">Smooth: Smoothes the pattern</label></div>
                 <div><input id="inverse" type="radio" name="conversion" value="inverse" /><label for="inverse" class='radio' tabindex='1'></label>
-                    <label for="inverse">Inverse</label></div>
-        <div><input id="dualchannel" type="radio" name="conversion" value="dualchannel"><label for="dualchannel" class='radio' tabindex='2'></label><label for="dualchannel">Dual Channel</label></div>
+                    <label for="inverse">Inverse: Makes the highs into lows and the lows in to highs (100 - pos)</label></div>
+        <div><input id="dualchannel" type="radio" name="conversion" value="dualchannel"><label for="dualchannel" class='radio' tabindex='2'></label><label for="dualchannel">Dual Channel; Moves the highs onto Channel A and the lows onto Channel B. 100% is 100 on A, 0 on B, 50% is 0% on both, and 0% is 100% B</label></div>
       
     </form>
     <div>
