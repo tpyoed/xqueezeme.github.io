@@ -9,20 +9,7 @@
 </head>
 <body>
     <script>
-        function checkFile() {
-            var fileElement = document.getElementById("upload");
-            var fileExtension = "";
-            if (fileElement.value.lastIndexOf(".") > 0) {
-                fileExtension = fileElement.value.substring(fileElement.value.lastIndexOf(".") + 1, fileElement.value.length);
-            }
-            if (fileExtension.toLowerCase() == "funscript") {
-                return true;
-            }
-            else {
-                alert("You must select a funscript file for upload");
-                return false;
-            }
-        }
+
     </script>
     <form enctype="multipart/form-data">
         
@@ -41,14 +28,12 @@
         <br />
         <div id="uploaddiv"><input id="upload" type=file   accept=".funscript" name="files[]" size=200 onchange="checkFile();" /></div>
         <p>Conversion:</p>
-        <div><input id="intensity" type="radio" name="conversion" value="intensity" checked="true" onchange="updateConversion(this)"/><label for="intensity" class='radio' tabindex='1'></label>
-            <label for="intensity">Intensity: Ideal for vibes and hismith. Calculates the intensity based on the speed and positional changes of the funscript.</label></div>
-            <div><input id="smooth" type="radio" name="conversion" value="smooth" onchange="updateConversion(this)"/><label for="smooth" class='radio' tabindex='1'></label>
-                <label for="smooth">Smooth: Smoothes the pattern</label></div>
-                <div><input id="inverse" type="radio" name="conversion" value="inverse" onchange="updateConversion(this)"/><label for="inverse" class='radio' tabindex='1'></label>
-                    <label for="inverse">Inverse: Makes the highs into lows and the lows in to highs (100 - pos)</label></div>
-        <div><input id="dualchannel" type="radio" name="conversion" value="dualchannel" onchange="updateConversion(this)"><label for="dualchannel" class='radio' tabindex='2'></label><label for="dualchannel">Dual Channel: Moves the highs onto Channel A and the lows onto Channel B; 100% is 100 on A, 0 on B, 50% is 0% on both, and 0% is 100% B</label></div>
-      
+        <div><input id="intensity" type="radio" name="conversion" value="intensity" checked="true" onchange="updateConversion(this)"/><label for="intensity" class='radio' tabindex='1'></label><label for="intensity">Intensity: Ideal for vibes and hismith. Calculates the intensity based on the speed and positional changes of the funscript.</label></div>
+        <div><input id="smooth" type="radio" name="conversion" value="smooth" onchange="updateConversion(this)"/><label for="smooth" class='radio' tabindex='1'></label><label for="smooth">Smooth: Smoothes the pattern</label></div>
+        <div><input id="inverse" type="radio" name="conversion" value="inverse" onchange="updateConversion(this)"/><label for="inverse" class='radio' tabindex='1'></label><label for="inverse">Inverse: Makes the highs into lows and the lows in to highs (100 - pos)</label></div>
+        <div><input id="normalalternating" type="radio" name="conversion" value="normalalternating" onchange="updateConversion(this)"><label for="normalalternating" class='radio' tabindex='2'></label><label for="normalalternating">Dual Channel alternating: Moves the highs onto Channel A and the lows onto Channel B; 100% is 100 on A, 0 on B, 50% is 0% on both, and 0% is 100% B</label></div>
+        <div><input id="smoothalternating" type="radio" name="conversion" value="smoothalternating" onchange="updateConversion(this)"><label for="smoothalternating" class='radio' tabindex='2'></label><label for="smoothalternating">Dual Channel smoothes & alternating: smoothes & alternates over the channels</label></div>
+        <div><input id="smoothsynchronous" type="radio" name="conversion" value="smoothsynchronous" onchange="updateConversion(this)"><label for="smoothsynchronous" class='radio' tabindex='2'></label><label for="smoothsynchronous">Dual Channel smoothes: smoothes over 2 channels</label></div>
     </form>
     <div>
         <button id="convert" value="Convert" onclick="convert();" disabled="true">Convert</button>    
@@ -59,6 +44,22 @@
     <div id="downloads"></div>
      
         <script>
+        function checkFile() {
+            var fileElement = document.getElementById("upload");
+            var fileExtension = "";
+            if (fileElement.value.lastIndexOf(".") > 0) {
+                fileExtension = fileElement.value.substring(fileElement.value.lastIndexOf(".") + 1, fileElement.value.length);
+            }
+            resetDownload();
+            if (fileExtension.toLowerCase() == "funscript") {
+                
+                return true;
+            }
+            else {
+                alert("You must select a funscript file for upload");
+                return false;
+            }
+        }
         var script = '';
 
         var funscript = null;
@@ -73,20 +74,33 @@
             }
             return selectedAns;
         }
+        function updateConversion(e) {
 
-        function updateConversion(el) {
-            var element = document.getElementById("scaling");
-            element.style.display = el.value == 'dualchannel' ? "none" : '';
         }
         function reset() {
-            document.getElementById('convert').disabled = true;
+            minorreset();
+            resetDownload();
             document.getElementById('reset').disabled = true;
-            document.getElementById("upload").files = null;
-            document.getElementById("pattern-generation-rate").value = 100;
+            document.getElementById('convert').disabled = true;
+
+        }
+
+        function resetDownload() {
             var myDiv = document.getElementById("downloads");
             myDiv.innerHTML = ""
-            var parent = document.getElementById('uploaddiv');
-            var el = document.getElementById('upload');
+            funscript = null;
+            script = null;
+        }
+
+        function minorreset() {
+            document.getElementById("pattern-generation-rate").value = 100;
+
+            resetFileHandler();
+
+        }
+        
+        function resetFileHandler() {
+            document.getElementById("upload").files = null;
 
             var newEl = document.createElement("input");
             newEl.setAttribute('type', 'file');
@@ -95,6 +109,8 @@
 
             newEl.setAttribute("onsumbit", "return checkFile();");
             newEl.addEventListener('change', handleFileSelect, false);
+            var el = document.getElementById('upload');
+            var parent = document.getElementById('uploaddiv');
 
             parent.removeChild(el);
             parent.appendChild(newEl)
@@ -112,27 +128,42 @@
                var mode = getMode();
                var myDiv = document.getElementById("downloads");
                myDiv.innerHTML = ""
-               if(mode == 'dualchannel') {
-                var channels = convertToDualChannelPattern(funscript.actions); // desired file content
-                console.log(channels);
-                script = channels;
-                add('Download Channel A', "download('" + baseFilename + "-a.funscript', script.a)")
-                add('Download Channel B', "download('" + baseFilename + "-b.funscript', script.b)")
-                document.getElementById('reset').disabled = false;
-               } else if(mode == 'intensity') {
-                script = intensityPattern(funscript.actions); // desired file content
-                add('Download', "download('" + baseFilename + ".funscript', script)")
-                document.getElementById('reset').disabled = false;
-               } else if(mode == 'smooth') {
-                script = smoothPattern(funscript.actions); // desired file content
-                add('Download', "download('" + baseFilename + ".funscript', script)")
-                document.getElementById('reset').disabled = false;
-            } else if(mode == 'inverse') {
-                script = inversePattern(funscript.actions); // desired file content
-                add('Download', "download('" + baseFilename + ".funscript', script)")
-                document.getElementById('reset').disabled = false;
-               }
-
+               if(mode == 'normalalternating') {
+                    var channels = normalAlternatingPattern(funscript.actions); // desired file content
+                    console.log(channels);
+                    script = channels;
+                    add('Download ' + baseFilename + "-a.funscript", "download('" + baseFilename + "-a.funscript', script.a)")
+                    add('Download ' + baseFilename + "-b.funscript", "download('" + baseFilename + "-b.funscript', script.b)")
+                    document.getElementById('reset').disabled = false;
+                } else if(mode == 'smoothalternating') {
+                    var channels = normalAlternatingPattern(funscript.actions); // desired file content
+                    console.log(channels);
+                    script = channels;
+                    add('Download ' + baseFilename + "-a.funscript", "download('" + baseFilename + "-a.funscript', script.a)")
+                    add('Download ' + baseFilename + "-b.funscript", "download('" + baseFilename + "-b.funscript', script.b)")
+                    document.getElementById('reset').disabled = false;
+                } else if(mode == 'smoothsynchronous') {
+                    var channels = smoothSynchronousPattern(funscript.actions); // desired file content
+                    console.log(channels);
+                    script = channels;
+                    add('Download ' + baseFilename + "-a.funscript", "download('" + baseFilename + "-a.funscript', script.a)")
+                    add('Download ' + baseFilename + "-b.funscript", "download('" + baseFilename + "-b.funscript', script.b)")
+                    document.getElementById('reset').disabled = false;
+                } else if(mode == 'intensity') {
+                    script = intensityPattern(funscript.actions); // desired file content
+                    add('Download', "download('" + baseFilename + ".funscript', script)")
+                    document.getElementById('reset').disabled = false;
+                } else if(mode == 'smooth') {
+                    script = smoothPattern(funscript.actions); // desired file content
+                    add('Download', "download('" + baseFilename + ".funscript', script)")
+                    document.getElementById('reset').disabled = false;
+                } else if(mode == 'inverse') {
+                    script = inversePattern(funscript.actions); // desired file content
+                    add('Download', "download('" + baseFilename + ".funscript', script)")
+                    document.getElementById('reset').disabled = false;
+                    document.getElementById('reset').disabled = false;
+                }
+                minorreset();
            }
            reader.onerror = error => reject(error)
            reader.readAsText(file);
@@ -144,7 +175,9 @@
                 element.setAttribute("value", name);
                 element.setAttribute("name", "button3");
                 element.setAttribute("onclick", onclick);
+                var br = document.createElement("br");
                 document.getElementById('downloads').appendChild(element);
+                document.getElementById('downloads').appendChild(br);
           }
 
           function download(filename, data) {
@@ -349,6 +382,28 @@
             normalizePattern(newActions, min, max);
             debug(newActions);
             return newActions;
+        }
+
+        function smoothAlternatingPattern(actions) {
+            debug('smoothAlternatingPattern()' + JSON.stringify(actions));
+            var newActions =  smooth(actions, function(a0,a1) {return a0.pos;}, 'Smoothifying pattern: ');
+            return convertToDualChannelPattern(newActions);
+        }
+
+        function normalAlternatingPattern(actions) {
+            debug('normalAlternatingPattern()' + JSON.stringify(actions));
+            return convertToDualChannelPattern(actions);
+        }
+
+        function smoothSynchronousPattern(actions) {
+            debug('smoothSynchronousPattern()' + JSON.stringify(actions));
+            var newActions =  smooth(actions, function(a0,a1) {return a0.pos;}, 'Smoothifying pattern: ');
+            return { 'a': newActions, 'b': newActions};
+        }
+
+        function normalSynchronousPattern(actions) {
+            debug('normalSynchronousPattern()' + JSON.stringify(actions));
+            return { 'a': actions, 'b': actions};
         }
 
         function inversePattern(actions) {
