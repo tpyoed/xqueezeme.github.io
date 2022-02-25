@@ -205,7 +205,7 @@
           }
 
  
-
+var useXtoysFunctions = false;
 function createNewPositions(actions, getPosition) {
     var newpositions = [];
     act0 = actions[0];
@@ -227,7 +227,7 @@ function inversePattern(actions) {
     var patternGenerationRate = getVariable('pattern-generation-rate');
     var patternGenerationTickMaxChange = getVariable('pattern-generation-tick-max-change');
     console.log(newActions);
-    var smoothed =  funscript_smoothPattern(newActions, patternGenerationRate, patternGenerationTickMaxChange);
+    var smoothed =  facade_smoothPattern(newActions, patternGenerationRate, patternGenerationTickMaxChange);
     var targetMin = getVariable('scale-min');
     var targetMax = getVariable('scale-max');
     return funscript_normalizePattern(smoothed.actions, smoothed.min, smoothed.max, targetMin, targetMax);
@@ -236,39 +236,39 @@ function inversePattern(actions) {
 function smoothPatternExternal(actions) {
     var patternGenerationRate = getVariable('pattern-generation-rate');
     var patternGenerationTickMaxChange = getVariable('pattern-generation-tick-max-change');
-    var smoothed =  funscript_smoothPattern(actions, patternGenerationRate, patternGenerationTickMaxChange);
+    var smoothed =  facade_smoothPattern(actions, patternGenerationRate, patternGenerationTickMaxChange);
     var targetMin = getVariable('scale-min');
     var targetMax = getVariable('scale-max');
 
-    return funscript_normalizePattern(smoothed.actions, smoothed.min, smoothed.max, targetMin, targetMax);
+    return facade_normalizePattern(smoothed.actions, smoothed.min, smoothed.max, targetMin, targetMax);
 }
 
 function smoothAlternatingPattern(actions) {
     var patternGenerationRate = getVariable('pattern-generation-rate');
     var patternGenerationTickMaxChange = getVariable('pattern-generation-tick-max-change');
-    var smoothed =  funscript_smoothPattern(actions, patternGenerationRate, patternGenerationTickMaxChange);
+    var smoothed =  facade_smoothPattern(actions, patternGenerationRate, patternGenerationTickMaxChange);
     var targetMin = getVariable('scale-min');
     var targetMax = getVariable('scale-max');
 
-    var normalizedActions =  funscript_normalizePattern(smoothed.actions, smoothed.min, smoothed.max, targetMin, targetMax);
-    return funscript_alternatePattern(normalizedActions, patternGenerationRate);
+    var normalizedActions =  facade_normalizePattern(smoothed.actions, smoothed.min, smoothed.max, targetMin, targetMax);
+    return facade_alternatePattern(normalizedActions, patternGenerationRate);
 }
 
 function normalAlternatingPattern(actions) {
     var patternGenerationRate = getVariable('pattern-generation-rate');
 
-    return funscript_alternatePattern(actions, patternGenerationRate);
+    return facade_alternatePattern(actions, patternGenerationRate);
 }
 
 function smoothSynchronousPattern(actions) {
     var patternGenerationRate = getVariable('pattern-generation-rate');
     var patternGenerationTickMaxChange = getVariable('pattern-generation-tick-max-change');
 
-    var smoothed = funscript_smoothPattern(actions, patternGenerationRate, patternGenerationTickMaxChange);
+    var smoothed = facade_smoothPattern(actions, patternGenerationRate, patternGenerationTickMaxChange);
     var targetMin = getVariable('scale-min');
     var targetMax = getVariable('scale-max');
 
-    var newActions =  funscript_normalizePattern(smoothed.actions, smoothed.min, smoothed.max, targetMin, targetMax);
+    var newActions =  facade_normalizePattern(smoothed.actions, smoothed.min, smoothed.max, targetMin, targetMax);
     return { 'a': newActions, 'b': newActions};
 }
 
@@ -284,13 +284,35 @@ function intensityPattern(actions) {
     var newActions = createNewPositions(actions, intensityPosition);
     var patternGenerationRate = getVariable('pattern-generation-rate');
     var patternGenerationTickMaxChange = getVariable('pattern-generation-tick-max-change');
-    var smoothed =  funscript_smoothPattern(newActions, patternGenerationRate, patternGenerationTickMaxChange);
+    var smoothed =  facade_smoothPattern(newActions, patternGenerationRate, patternGenerationTickMaxChange);
     var targetMin = getVariable('scale-min');
     var targetMax = getVariable('scale-max');
-    return funscript_normalizePattern(smoothed.actions, smoothed.min, smoothed.max, targetMin, targetMax);
+    return facade_normalizePattern(smoothed.actions, smoothed.min, smoothed.max, targetMin, targetMax);
 }
 
-function funscript_alternatePattern(actions, patternGenerationRate) {
+function facade_alternatePattern(actions, patternGenerationRate) {
+    if(useXtoysFunctions) {
+        return funscript_alternatePattern(actions, patternGenerationRate);
+    } else {
+        return tease_alternatePattern(actions, patternGenerationRate);
+    }
+}
+
+function facade_smoothPattern(newActions, patternGenerationRate, patternGenerationTickMaxChange) {
+    if(useXtoysFunctions) {
+        return funscript_smoothPattern(newActions, patternGenerationRate, patternGenerationTickMaxChange);
+    } else {
+        return tease_smoothPattern(newActions, patternGenerationRate, patternGenerationTickMaxChange);
+    }
+}
+function facade_normalizePattern(actions, min, max, targetMin, targetMax) {
+    if(useXtoysFunctions) {
+        return funscript_normalizePattern(actions, min, max, targetMin, targetMax);
+    } else {
+        return tease_normalizePattern(actions, min, max, targetMin, targetMax);
+    }
+}
+function tease_alternatePattern(actions, patternGenerationRate) {
     var length = actions.slice(-1).pop().at;
     var normalSamples = length / patternGenerationRate;
     var fadeTime = 3000;
@@ -350,7 +372,7 @@ function funscript_alternatePattern(actions, patternGenerationRate) {
   }
   
   
-  function funscript_normalizePattern(actions, min, max, targetMin, targetMax) {
+  function tease_normalizePattern(actions, min, max, targetMin, targetMax) {
       if(actions) {
           targetMin = targetMin > 0 ? parseInt(targetMin) : 0;
           targetMax = targetMax > 0 && targetMax < 100 ? parseInt(targetMax) : 100;
@@ -365,7 +387,7 @@ function funscript_alternatePattern(actions, patternGenerationRate) {
       return actions;
   }
   
-  function funscript_smoothPattern(
+  function tease_smoothPattern(
       actions, 
       patternGenerationRate, 
       patternGenerationTickMaxChange
