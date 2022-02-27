@@ -246,12 +246,18 @@ function smoothPatternExternal(actions) {
 function smoothAlternatingPattern(actions) {
     var patternGenerationRate = getVariable('pattern-generation-rate');
     var patternGenerationTickMaxChange = getVariable('pattern-generation-tick-max-change');
-    var smoothed =  facade_smoothPattern(actions, patternGenerationRate, patternGenerationTickMaxChange);
+    var alternatiingActions = facade_alternatePattern(actions, patternGenerationRate);
+
+    var smoothedA =  facade_smoothPattern(alternatiingActions.a, patternGenerationRate, patternGenerationTickMaxChange);
+    var smoothedB =  facade_smoothPattern(alternatiingActions.b, patternGenerationRate, patternGenerationTickMaxChange);
+
     var targetMin = getVariable('scale-min');
     var targetMax = getVariable('scale-max');
 
-    var normalizedActions =  facade_normalizePattern(smoothed.actions, smoothed.min, smoothed.max, targetMin, targetMax);
-    return facade_alternatePattern(normalizedActions, patternGenerationRate);
+    var normalizedActionsA =  facade_normalizePattern(smoothedA.actions, smoothedA.min, smoothedA.max, targetMin, targetMax);
+    var normalizedActionsB =  facade_normalizePattern(smoothedB.actions, smoothedB.min, smoothedB.max, targetMin, targetMax);
+
+    return { 'a': normalizedActionsA, 'b': normalizedActionsB};
 }
 
 function normalAlternatingPattern(actions) {
