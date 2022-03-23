@@ -137,7 +137,7 @@
                     document.getElementById('reset').disabled = false;
                     document.getElementById('convert').disabled = true;
                 } else if(mode == 'smoothalternating') {
-                    var channels = normalAlternatingPattern(funscript.actions); // desired file content
+                    var channels = smoothAlternatingPattern(funscript.actions); // desired file content
                     console.log(channels);
                     script = channels;
                     add('Download ' + baseFilename + "-a.funscript", "download('" + baseFilename + "-a.funscript', script.a)")
