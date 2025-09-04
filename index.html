@@ -335,7 +335,8 @@ function normalSynchronousPattern(actions) {
 }
 
 function intensityPosition(a0, a1) {
-  return Math.min(100, Math.floor(Math.abs((a1.pos - a0.pos) / (a1.at - a0.at)) * 100));
+  return Math.min(100, Math.floor(
+      Math.abs((a1.pos - a0.pos) / (a1.at - a0.at)) * (50 + a1.pos / 2)));
 }
 
 function createNewPositions(actions, positionFunction) {
